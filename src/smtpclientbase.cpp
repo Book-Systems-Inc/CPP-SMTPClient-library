@@ -316,9 +316,12 @@ int SMTPClientBase::getErrorMessage_r(int errorCode,
 }
 
 int SMTPClientBase::sendMail(const Message &pMsg) {
-    int client_connect_ret_code = establishConnectionWithServer();
-    if (client_connect_ret_code != 0) {
-        return client_connect_ret_code;
+
+    if (getSocketFileDescriptor() == 0) {
+        int client_connect_ret_code = establishConnectionWithServer();
+        if (client_connect_ret_code != 0) {
+            return client_connect_ret_code;
+        }
     }
 
     int set_mail_recipients_ret_code = setMailRecipients(pMsg);
@@ -336,7 +339,8 @@ int SMTPClientBase::sendMail(const Message &pMsg) {
         return set_mail_body_ret_code;
     }
 
-    cleanup();
+    //cleanup();
+
     return 0;
 }
 
@@ -611,7 +615,7 @@ int SMTPClientBase::sendRawCommand(const char *pCommand, int pErrorCode, int pTi
         return extractReturnCode(outbuf);
     }
 
-    cleanup();
+    //cleanup();
     return pTimeoutCode;
 }
 
@@ -839,12 +843,14 @@ int SMTPClientBase::setMailBody(const Message &pMsg) {
         return end_data_ret_code;
     }
 
+/*
     std::string quit_command { "QUIT\r\n" };
     addCommunicationLogItem(quit_command.c_str());
     int quit_ret_code = (*this.*sendCommandPtr)(quit_command.c_str(), CLIENT_SENDMAIL_QUIT_ERROR);
     if (quit_ret_code != 0) {
         return quit_ret_code;
     }
+*/
     return 0;
 }
 
